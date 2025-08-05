@@ -1,0 +1,36 @@
+app-id: io.github.pierspad.TextMerger
+runtime: org.kde.Platform
+runtime-version: '5.15-24.08'
+sdk: org.kde.Sdk
+base: com.riverbankcomputing.PyQt.BaseApp
+base-version: '5.15-24.08'
+command: textmerger
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+
+finish-args:
+  - --filesystem=home
+  - --socket=x11
+  - --socket=wayland
+  - --device=dri
+  - --share=ipc
+
+modules:
+  - name: python-deps
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - pip3 install --prefix=/app Flask Werkzeug nbformat
+    sources: []
+
+  - name: textmerger
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-deps .
+    sources:
+      - type: git
+        url: 
+        tag: 
+        commit: 

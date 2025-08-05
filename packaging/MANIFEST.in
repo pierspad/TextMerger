@@ -1,0 +1,11 @@
+include README.md
+include LICENSE
+include textmerger.desktop
+recursive-include textmerger/assets *
+recursive-include textmerger/translations *
+include textmerger/assets/logo/logo.png
+include textmerger/assets/logo/logo.ico
+recursive-include textmerger/assets/icons *
+recursive-include textmerger/assets/icons/flags *
+recursive-include textmerger/assets/icons/languages *
+
