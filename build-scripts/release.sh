@@ -49,6 +49,24 @@ check_git_status() {
     fi
 }
 
+commit_and_push_flathub_repo() {
+    echo "=== Commit e Push nel repo Flathub ==="
+    local flathub_dir="flathub-repo"
+
+    pushd "$flathub_dir" > /dev/null
+
+    if [[ -n $(git status --porcelain) ]]; then
+        git add .
+        git commit -m "Updated Flatpak for release v$VERSION"
+        git push
+        echo "✓ Modifiche nel repo Flathub pushate con successo."
+    else
+        echo "✓ Nessuna modifica da pushare nel repo Flathub."
+    fi
+
+    popd > /dev/null
+}
+
 # Crea tag git
 create_git_tag() {
     local version="$1"
@@ -65,13 +83,17 @@ create_git_tag() {
             exit 1
         fi
     fi
-    
+
     git add -A
     git commit -m "Release v$version" || echo "Nessuna modifica da committare"
     git tag -a "$tag" -m "Release v$version"
     
-    echo "Tag $tag creato. Per pushare: git push origin $tag"
+    git push origin "$tag"
+    git push
+    
+    echo "Tag $tag creato e pushato."
 }
+
 
 # Parsing argomenti
 if [[ $# -gt 1 ]] || [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
@@ -123,6 +145,9 @@ CURRENT_DATE=$(date '+%Y-%m-%d')
 sed -i "s/<release version=\".*\"/<release version=\"$VERSION\"/" "$METAINFO_PATH"
 sed -i "s/date=\".*\"/date=\"$CURRENT_DATE\"/" "$METAINFO_PATH"
 echo "✓ Metainfo XML aggiornato"
+
+# Commit e push Flathub submodule
+commit_and_push_flathub_repo
 
 # Verifica coerenza versioni
 echo ""
