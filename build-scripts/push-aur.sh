@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-AUR_REPO_DIR="${AUR_REPO_DIR:-../aur_repo}"
+AUR_REPO_DIR="${AUR_REPO_DIR:-../aur-repo}"
 PROJECT_NAME="${PROJECT_NAME:-$(grep -Po '^pkgname=\K.*' PKGBUILD)}"
 ICON_DIR="${ICON_DIR:-${PROJECT_NAME}/assets/logo}"
 
