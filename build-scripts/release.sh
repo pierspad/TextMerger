@@ -17,9 +17,8 @@ show_help() {
     echo ""
     echo "Questo script:"
     echo "  1. Aggiorna la versione nel PKGBUILD (se specificata)"
-    echo "  2. Sincronizza tutti i file con le info dal PKGBUILD"
+    echo "  2. Sincronizza i file con la versione dal PKGBUILD"
     echo "  3. Crea il tag git"
-    echo "  4. Prepara i build per AUR e Flatpak"
     echo ""
 }
 
@@ -49,32 +48,6 @@ check_git_status() {
     fi
 }
 
-commit_and_push_flathub_repo() {
-    echo "=== Commit e Push nel repo Flathub ==="
-    local flathub_dir="flathub-repo"
-
-    pushd "$flathub_dir" >/dev/null
-
-    if [[ -n $(git status --porcelain) ]]; then
-        git add .
-        git commit -m "Updated Flatpak for release v$VERSION"
-
-        current_branch=$(git symbolic-ref --short HEAD)
-        # Se esiste un upstream push “normale”, altrimenti crea il tracking
-        if git rev-parse --verify --quiet "@{u}" >/dev/null; then
-            git push
-        else
-            git push -u origin "$current_branch"
-        fi
-
-        echo "✓ Modifiche nel repo Flathub pushate con successo."
-    else
-        echo "✓ Nessuna modifica da pushare nel repo Flathub."
-    fi
-
-    popd >/dev/null
-}
-
 # Crea tag git
 create_git_tag() {
     local version="$1"
@@ -101,7 +74,6 @@ create_git_tag() {
     
     echo "Tag $tag creato e pushato."
 }
-
 
 # Parsing argomenti
 if [[ $# -gt 1 ]] || [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
@@ -142,44 +114,5 @@ echo "✓ pyproject.toml aggiornato"
 sed -i "s/^version\s*=.*/version = \"$VERSION\"/" packaging/pyproject.toml
 echo "✓ packaging/pyproject.toml aggiornato"
 
-# Aggiorna il manifest Flatpak
-MANIFEST_PATH="flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.yml"
-sed -i "s/tag: v.*/tag: v$VERSION/" "$MANIFEST_PATH"
-echo "✓ Manifest Flatpak aggiornato"
-
-# Aggiorna metainfo XML
-METAINFO_PATH="flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.metainfo.xml"
-CURRENT_DATE=$(date '+%Y-%m-%d')
-sed -i "s/<release version=\".*\"/<release version=\"$VERSION\"/" "$METAINFO_PATH"
-sed -i "s/date=\".*\"/date=\"$CURRENT_DATE\"/" "$METAINFO_PATH"
-echo "✓ Metainfo XML aggiornato"
-
-# Commit e push Flathub submodule
-commit_and_push_flathub_repo
-
-# Verifica coerenza versioni
-echo ""
-echo "=== Verifica coerenza versioni ==="
-echo "PKGBUILD: $VERSION"
-echo "pyproject.toml: $(grep -E '^version\s*=' pyproject.toml | cut -d '=' -f2 | tr -d ' "'"'")"
-echo "packaging/pyproject.toml: $(grep -E '^version\s*=' packaging/pyproject.toml | cut -d '=' -f2 | tr -d ' "'"'")"
-echo "Flatpak manifest: $(grep -E 'tag: v' "$MANIFEST_PATH" | cut -d 'v' -f2)"
-echo "Metainfo XML: $(grep -E '<release version=' "$METAINFO_PATH" | sed 's/.*version="\([^"]*\)".*/\1/')"
-
-# Crea tag git
-echo ""
-echo "=== Creazione tag git ==="
+# Crea e pusha il tag git
 create_git_tag "$VERSION"
-
-echo ""
-echo "=== Rilascio completato! ==="
-echo ""
-echo "Prossimi passi:"
-echo "1. git push origin v$VERSION    # Pusha il tag"
-echo "2. git push                     # Pusha le modifiche"
-echo "3. ./build-scripts/build-aur.sh # Builda per AUR"
-echo "4. ./build-scripts/build-flatpak.sh # Builda per Flatpak"
-echo ""
-echo "Oppure usa gli script automatici:"
-echo "  ./build-scripts/push-aur.sh"
-echo "  ./build-scripts/build-flatpak.sh"
