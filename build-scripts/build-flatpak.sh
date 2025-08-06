@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Script per buildare Flatpak localmente
-# Uso: ./build-flatpak-local.sh
+# Uso: ./build-flatpak.sh
 
 # Posizionati nella root del progetto
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -48,6 +48,16 @@ if ! command -v flatpak-builder >/dev/null 2>&1; then
     exit 1
 fi
 
+# Verifica che Python e PyYAML siano disponibili per processare il manifest
+if ! python3 -c "import yaml" 2>/dev/null; then
+    echo "Avviso: PyYAML non trovato, installo..."
+    pip3 install --user PyYAML 2>/dev/null || {
+        echo "Errore: Non riesco a installare PyYAML"
+        echo "Installa con: pip3 install PyYAML o sudo apt install python3-yaml"
+        exit 1
+    }
+fi
+
 echo "=== Configurazione Flathub repository ==="
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
@@ -79,18 +89,63 @@ fi
 # Copia e modifica il manifest per usare i sorgenti locali
 cp "$MANIFEST_PATH" "$TEMP_MANIFEST_PATH"
 
-# Sostituisci la fonte Git con la directory locale
-sed -i '/sources:/,/commit:/c\
-    sources:\
-      - type: dir\
-        path: ..' "$TEMP_MANIFEST_PATH"
+# Copia anche i file desktop necessari nella directory di build-scripts
+cp "flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.desktop" "build-scripts/"
+cp "flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.metainfo.xml" "build-scripts/"
+cp "flathub-repo/io.github.pierspad.TextMerger/logo.png" "build-scripts/"
+
+# Sostituisci la fonte Git con la directory locale per il modulo textmerger
+# E aggiorna i percorsi del modulo desktop per puntare ai file corretti
+python3 -c "
+import yaml
+import sys
+import os
+
+manifest_file = '$TEMP_MANIFEST_PATH'
+
+with open(manifest_file, 'r') as f:
+    data = yaml.safe_load(f)
+
+# Trova il modulo textmerger e sostituisci le sue sources
+for module in data['modules']:
+    if module['name'] == 'textmerger':
+        module['sources'] = [{'type': 'dir', 'path': '..'}]
+    elif module['name'] == 'textmerger-desktop':
+        # Aggiorna i percorsi per puntare ai file nella directory build-scripts
+        for source in module.get('sources', []):
+            if source.get('type') == 'file':
+                filename = source.get('path', '')
+                if filename:
+                    source['path'] = filename
+
+with open(manifest_file, 'w') as f:
+    yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+" || {
+    # Fallback se Python/yaml non è disponibile
+    echo "Avviso: Usando fallback sed (potrebbe non funzionare perfettamente)"
+    # Sostituisci solo la sezione sources del modulo textmerger
+    sed -i '/- name: textmerger/,/- name: textmerger-desktop/{
+        /sources:/,/commit:/{
+            /sources:/c\    sources:\
+\      - type: dir\
+\        path: ..
+            /type: git/d
+            /url:/d
+            /tag:/d
+            /commit:/d
+        }
+    }' "$TEMP_MANIFEST_PATH"
+}
 
 echo "=== Build del Flatpak ==="
 echo "Avvio build Flatpak..."
 flatpak-builder --user --force-clean --install flatpak-build "$TEMP_MANIFEST_PATH"
 
-# Rimuovi il manifest temporaneo
+# Rimuovi il manifest temporaneo e i file copiati
 rm -f "$TEMP_MANIFEST_PATH"
+rm -f "build-scripts/io.github.pierspad.TextMerger.desktop"
+rm -f "build-scripts/io.github.pierspad.TextMerger.metainfo.xml"
+rm -f "build-scripts/logo.png"
 
 echo ""
 echo "=== Build completato! ==="

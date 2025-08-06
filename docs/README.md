@@ -15,6 +15,17 @@ TextMerger works with a wide range of file types, including source code, web scr
 
 ## Installation for Arch Linux
 
+### From AUR
+
+1. Install the package using `yay` or `paru`:
+   ```bash
+   yay -S textmerger
+   ```
+   or
+   ```bash
+   paru -S textmerger
+   ```
+   
 ### From Source
 1. Ensure you have Python 3.13+ and pip installed.
 2. Clone the repository:

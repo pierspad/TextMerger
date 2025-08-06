@@ -49,6 +49,16 @@ if ! git config user.name >/dev/null 2>&1 || ! git config user.email >/dev/null 
     exit 1
 fi
 
+# Verifica che Python e PyYAML siano disponibili per processare il manifest
+if ! python3 -c "import yaml" 2>/dev/null; then
+    echo "Avviso: PyYAML non trovato, installo..."
+    pip3 install --user PyYAML 2>/dev/null || {
+        echo "Errore: Non riesco a installare PyYAML"
+        echo "Installa con: pip3 install PyYAML o sudo apt install python3-yaml"
+        exit 1
+    }
+fi
+
 # Verifica che il repository sia pulito
 if ! git diff-index --quiet HEAD --; then
     echo "Errore: Ci sono modifiche non committate nel repository"
@@ -58,8 +68,11 @@ if ! git diff-index --quiet HEAD --; then
 fi
 
 # Verifica che il tag esista
-if ! git tag | grep -q "v$VERSION"; then
+if ! git tag -l | grep -q "^v$VERSION$"; then
     echo "Errore: Il tag v$VERSION non esiste"
+    echo "Tag esistenti:"
+    git tag -l | grep -E '^v[0-9]' | sort -V | tail -5
+    echo ""
     echo "Crea il tag con: git tag v$VERSION"
     echo "E pushalo con: git push origin v$VERSION"
     exit 1
@@ -74,12 +87,53 @@ update_flatpak_manifest() {
     # Crea un backup
     cp "$manifest_path" "${manifest_path}.bak"
     
-    # Aggiorna il tag della versione
-    sed -i "s/tag: v.*/tag: v$VERSION/" "$manifest_path"
-    
     # Ottieni l'hash del commit per il tag
-    local commit_hash=$(git rev-list -n 1 "v$VERSION")
-    sed -i "s/commit: .*/commit: $commit_hash/" "$manifest_path"
+    local commit_hash=$(git rev-list -n 1 "v$VERSION" 2>/dev/null) || {
+        echo "Errore: Impossibile trovare il commit per il tag v$VERSION"
+        return 1
+    }
+    
+    # Usa Python per aggiornare il manifest YAML in modo sicuro
+    python3 -c "
+import yaml
+import sys
+
+manifest_file = '$manifest_path'
+
+try:
+    with open(manifest_file, 'r') as f:
+        content = f.read()
+        data = yaml.safe_load(content)
+
+    # Trova il modulo textmerger e aggiorna tag e commit
+    found = False
+    for module in data['modules']:
+        if module['name'] == 'textmerger':
+            for source in module.get('sources', []):
+                if source.get('type') == 'git':
+                    source['tag'] = 'v$VERSION'
+                    source['commit'] = '$commit_hash'
+                    found = True
+                    break
+            break
+    
+    if not found:
+        print('Errore: Modulo textmerger con source git non trovato', file=sys.stderr)
+        sys.exit(1)
+
+    with open(manifest_file, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False, width=float('inf'))
+
+    print('Manifest aggiornato con successo')
+except Exception as e:
+    print(f'Errore durante l\\'aggiornamento del manifest: {e}', file=sys.stderr)
+    sys.exit(1)
+" || {
+        echo "Errore: Impossibile aggiornare il manifest con Python"
+        # Ripristina il backup in caso di errore
+        mv "${manifest_path}.bak" "$manifest_path"
+        return 1
+    }
     
     echo "Manifest aggiornato:"
     echo "  - Versione: v$VERSION"
@@ -94,10 +148,17 @@ update_metainfo() {
     # Backup del file originale
     cp "$metainfo_path" "${metainfo_path}.bak"
     
+    # Verifica se il file esiste
+    if [[ ! -f "$metainfo_path" ]]; then
+        echo "Avviso: File metainfo non trovato in $metainfo_path"
+        return 0
+    fi
+    
     # Aggiorna la versione nel metainfo (se presente)
     if grep -q '<release version=' "$metainfo_path"; then
-        sed -i "s/<release version=\".*\"/<release version=\"$VERSION\"/" "$metainfo_path"
-        sed -i "s/date=\".*\"/date=\"$current_date\"/" "$metainfo_path"
+        # Aggiorna la prima occorrenza di release version
+        sed -i "0,/<release version=\"[^\"]*\"/{s/<release version=\"[^\"]*\"/<release version=\"$VERSION\"/}" "$metainfo_path"
+        sed -i "0,/date=\"[^\"]*\"/{s/date=\"[^\"]*\"/date=\"$current_date\"/}" "$metainfo_path"
         echo "Metainfo aggiornato:"
         echo "  - Versione: $VERSION"
         echo "  - Data: $current_date"
@@ -106,9 +167,9 @@ update_metainfo() {
     fi
 }
 
-# Aggiorna pyproject.toml nella root
-echo "Sincronizzazione versione in pyproject.toml..."
-sed -i "s/^version\s*=.*/version = \"$VERSION\"/" pyproject.toml
+# Aggiorna pyproject.toml nella cartella packaging
+echo "Sincronizzazione versione in packaging/pyproject.toml..."
+sed -i "s/^version\s*=.*/version = \"$VERSION\"/" packaging/pyproject.toml
 
 # Aggiorna i file Flatpak
 update_flatpak_manifest
@@ -153,7 +214,7 @@ echo "=== Commit delle modifiche ==="
 echo "File che verranno committati:"
 git add flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.yml
 git add flathub-repo/io.github.pierspad.TextMerger/io.github.pierspad.TextMerger.metainfo.xml
-git add pyproject.toml
+git add packaging/pyproject.toml
 
 echo ""
 git status --staged
