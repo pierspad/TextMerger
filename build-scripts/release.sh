@@ -53,18 +53,26 @@ commit_and_push_flathub_repo() {
     echo "=== Commit e Push nel repo Flathub ==="
     local flathub_dir="flathub-repo"
 
-    pushd "$flathub_dir" > /dev/null
+    pushd "$flathub_dir" >/dev/null
 
     if [[ -n $(git status --porcelain) ]]; then
         git add .
         git commit -m "Updated Flatpak for release v$VERSION"
-        git push
+
+        current_branch=$(git symbolic-ref --short HEAD)
+        # Se esiste un upstream push “normale”, altrimenti crea il tracking
+        if git rev-parse --verify --quiet "@{u}" >/dev/null; then
+            git push
+        else
+            git push -u origin "$current_branch"
+        fi
+
         echo "✓ Modifiche nel repo Flathub pushate con successo."
     else
         echo "✓ Nessuna modifica da pushare nel repo Flathub."
     fi
 
-    popd > /dev/null
+    popd >/dev/null
 }
 
 # Crea tag git
