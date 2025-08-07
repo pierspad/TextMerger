@@ -1103,6 +1103,7 @@ class MainWindow(QMainWindow):
         reply = message_box.exec_()
         if reply == QMessageBox.Yes:
             if ShortcutEditor.reset_to_defaults():
+                self.localization.refresh_shortcuts()  # Aggiorna la cache delle shortcut
                 self.update_shortcuts_table()
                 self.snackbar.showMessage(self.localization.tr("shortcuts_reset_success"), duration=700)
             else:
