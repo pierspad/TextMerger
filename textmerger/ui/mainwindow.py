@@ -664,11 +664,9 @@ class MainWindow(QMainWindow):
         self.loading_overlay.show_overlay()
         QCoreApplication.processEvents()
 
-        # Normalizza e rimuovi duplicati
         file_paths = [os.path.normpath(p) for p in file_paths]
         file_paths = list(dict.fromkeys(file_paths))
         
-        # Verifica quali file esistono
         existing_paths = [p for p in file_paths if os.path.exists(p)]
         if len(existing_paths) < len(file_paths):
             self.snackbar.showMessage(
@@ -676,31 +674,25 @@ class MainWindow(QMainWindow):
                 duration=1500
             )
 
-        # Carica i nuovi file
         new_files = load_files(existing_paths)
         
-        # Riorganizza la struttura dati
         for original_path in existing_paths:
             norm_path = os.path.normpath(original_path)
             
             if os.path.isdir(original_path):
-                # Rimuovi eventuali file singoli che ora sono nella cartella
                 for file_path in new_files.keys():
                     if file_path.startswith(original_path) and file_path in self.files_dict:
                         del self.files_dict[file_path]
                 
-                # Aggiungi i file della cartella
                 for path, content in new_files.items():
                     if path.startswith(original_path):
                         self.files_dict[path] = content
                         
-                # Aggiorna la mappa delle directory
                 self.dir_files_map[norm_path] = [
                     path for path in new_files.keys() 
                     if path.startswith(original_path)
                 ]
             else:
-                # Se il file non è già contenuto in una cartella aggiunta
                 is_in_added_dir = False
                 for dir_path in self.dir_files_map:
                     if original_path.startswith(dir_path):
@@ -710,7 +702,6 @@ class MainWindow(QMainWindow):
                 if not is_in_added_dir:
                     self.files_dict[original_path] = new_files[original_path]
 
-        # Ricostruisci l'albero dei file
         self.repopulate_file_tree()
         self.update_text_content()
         self.loading_overlay.hide_overlay()
@@ -743,26 +734,22 @@ class MainWindow(QMainWindow):
 
             if data['type'] == 'directory':
                 dir_path = data['path']
-                # Rimuovi tutti i file nella directory
                 files_to_remove = [
                     path for path in self.files_dict.keys()
                     if path.startswith(dir_path)
                 ]
                 for file_path in files_to_remove:
                     del self.files_dict[file_path]
-                # Rimuovi la directory dalla mappa
                 if dir_path in self.dir_files_map:
                     del self.dir_files_map[dir_path]
             else:
                 file_path = data['path']
                 if file_path in self.files_dict:
                     del self.files_dict[file_path]
-                    # Rimuovi il file da dir_files_map se presente
                     for dir_files in self.dir_files_map.values():
                         if file_path in dir_files:
                             dir_files.remove(file_path)
 
-            # Rimuovi l'elemento dall'albero
             if data['type'] == 'directory':
                 index = self.file_tree.indexOfTopLevelItem(current_item)
                 self.file_tree.takeTopLevelItem(index)
@@ -841,13 +828,11 @@ class MainWindow(QMainWindow):
         self.loading_overlay.show_overlay()
         QCoreApplication.processEvents()
 
-        # Raccogli tutti i percorsi da aggiornare
         paths_to_update = []
         for dir_path, dir_files in self.dir_files_map.items():
             if os.path.exists(dir_path):
                 paths_to_update.append(dir_path)
             else:
-                # Rimuovi directory non più esistenti
                 del self.dir_files_map[dir_path]
 
         for file_path in list(self.files_dict.keys()):
@@ -855,7 +840,6 @@ class MainWindow(QMainWindow):
                 if not any(file_path.startswith(dir_path) for dir_path in self.dir_files_map):
                     paths_to_update.append(file_path)
             else:
-                # Rimuovi file non più esistenti
                 del self.files_dict[file_path]
 
         if paths_to_update:
@@ -1103,7 +1087,7 @@ class MainWindow(QMainWindow):
         reply = message_box.exec_()
         if reply == QMessageBox.Yes:
             if ShortcutEditor.reset_to_defaults():
-                self.localization.refresh_shortcuts()  # Aggiorna la cache delle shortcut
+                self.localization.refresh_shortcuts() 
                 self.update_shortcuts_table()
                 self.snackbar.showMessage(self.localization.tr("shortcuts_reset_success"), duration=700)
             else:
@@ -1125,7 +1109,6 @@ class MainWindow(QMainWindow):
     def repopulate_file_tree(self):
         self.file_tree.clear()
         
-        # Organizza i file per directory
         dir_files = {}
         single_files = []
         
@@ -1138,7 +1121,6 @@ class MainWindow(QMainWindow):
             else:
                 single_files.append(file_path)
 
-        # Aggiungi le directory con i loro file
         for dir_path, dir_file_list in dir_files.items():
             dir_item = QTreeWidgetItem([dir_path])
             dir_item.setIcon(0, get_colored_icon("folder.svg", self.icon_color(), size=18))
@@ -1156,7 +1138,6 @@ class MainWindow(QMainWindow):
             
             self.file_tree.addTopLevelItem(dir_item)
 
-        # Aggiungi i file singoli
         for file_path in sorted(single_files):
             file_item = QTreeWidgetItem([file_path])
             file_item.setIcon(0, self.get_file_icon(file_path))
