@@ -24,6 +24,7 @@ sudo pacman -S --needed python python-build python-installer python-wheel python
 echo "Preparing source package..."
 rm -rf src pkg *.pkg.tar.*
 mkdir -p src
+updpkgsums
 
 echo "Creating source tarball..."
 # Crea il tarball nella directory corrente per makepkg
