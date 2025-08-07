@@ -1166,24 +1166,12 @@ class MainWindow(QMainWindow):
             self.file_tree.addTopLevelItem(file_item)
 
     def update_supported_formats_placeholder(self):
-        from core.file_manager import get_supported_formats
-        
-        formats = get_supported_formats()
-        placeholder = self.localization.tr("supported_formats_header") + "\n"
-        
-        for category, extensions in formats.items():
-            if extensions:
-                if category == "Programming":
-                    placeholder += f"\n{self.localization.tr('programming_category')}\n"
-                elif category == "Web & Scripting":
-                    placeholder += f"\n{self.localization.tr('web_scripting_category')}\n"
-                elif category == "Markup & Config":
-                    placeholder += f"\n{self.localization.tr('markup_config_category')}\n"
-                elif category == "Project Files":
-                    placeholder += f"\n{self.localization.tr('project_files_category')}\n"
-                elif category == "Special Formats":
-                    placeholder += f"\n{self.localization.tr('special_formats_category')}\n"
-                
-                placeholder += "  " + ", ".join(sorted(extensions)) + "\n"
+        placeholder = """
+██████  ██████   ██████  ██████      ███████ ██ ██      ███████ ███████     ██   ██ ███████ ██████  ███████ 
+██   ██ ██   ██ ██    ██ ██   ██     ██      ██ ██      ██      ██          ██   ██ ██      ██   ██ ██      
+██   ██ ██████  ██    ██ ██████      █████   ██ ██      █████   ███████     ███████ █████   ██████  █████   
+██   ██ ██   ██ ██    ██ ██          ██      ██ ██      ██           ██     ██   ██ ██      ██   ██ ██      
+██████  ██   ██  ██████  ██          ██      ██ ███████ ███████ ███████     ██   ██ ███████ ██   ██ ███████ 
+"""
         
         self.text_edit.setPlaceholderText(placeholder)

@@ -45,7 +45,7 @@ TextMerger works with a wide range of file types, including source code, web scr
 
 ## Contributing
 Pull requests are welcome! 
-I would like some help in packaging TextMerger for Windows/MacOS and maybe other distributions like Debian, Ubuntu, Fedora, etc.
+I wouldn't mind some help in traslating the app properly in various languages and packaging it for Windows/MacOS and maybe other distributions like Debian, Ubuntu, Fedora, etc.
 For major changes, please open an issue first to discuss your ideas.
 
 ## License
