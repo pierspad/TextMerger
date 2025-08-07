@@ -18,9 +18,6 @@ if [ -z "$VERSION" ]; then
 fi
 echo "Detected version: $VERSION"
 
-echo "Synchronising version in packaging/pyproject.toml..."
-sed -i "s/^version\s*=.*/version = \"$VERSION\"/" ../packaging/pyproject.toml
-
 echo "Installing build dependencies..."
 sudo pacman -S --needed python python-build python-installer python-wheel python-setuptools
 
