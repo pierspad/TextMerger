@@ -43,28 +43,10 @@ TextMerger works with a wide range of file types, including source code, web scr
    sudo pacman -U textmerger.*******-pkg.tar.zst
    ```
 
-## Installation for Windows
-
-### Build Executable 
-1. Install PyInstaller:
-   ```bash
-   pip install pyinstaller
-   ```
-2. Create the executable:
-   ```bash
-      py -m PyInstaller `
-      --onefile `
-      --noconsole `
-      --name TextMerger `
-      --icon=assets/logo/logo.png `
-      --add-data "assets;assets" `
-      --add-data "translations;translations" `
-      __main__.py
-   ```
-3. The executable will be located in the `dist` folder.
-
 ## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss your ideas.
+Pull requests are welcome! 
+I would like some help in packaging TextMerger for Windows/MacOS and maybe other distributions like Debian, Ubuntu, Fedora, etc.
+For major changes, please open an issue first to discuss your ideas.
 
 ## License
 This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
