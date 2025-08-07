@@ -1,7 +1,6 @@
 import json
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow
 
 from utils.settings import DEFAULT_SHORTCUTS
 
@@ -92,7 +91,4 @@ class Localization(QObject):
     def refresh_shortcuts(self):
         self.shortcuts = self.settings.get_shortcuts()
         self.shortcuts_changed.emit()
-        main_window = self.parent().findChild(QMainWindow, "MainWindow")
-        if main_window:
-            main_window.refresh_file_list()
 
