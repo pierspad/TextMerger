@@ -959,6 +959,7 @@ class MainWindow(QMainWindow):
         self.theme_button.setText(
             self.localization.tr("dark_mode") if not self.dark_mode else self.localization.tr("light_mode"))
         self.language_button.setText(self.localization.tr("language_menu"))
+        self.shortcuts_button.setText(self.localization.tr("edit_shortcuts"))
         self.update_shortcuts_table()
         self.text_edit.setPlaceholderText(self.localization.tr("supported_formats"))
         self.update_supported_formats_placeholder()

@@ -57,7 +57,7 @@
   "project_files_category": "-> Project Files:",
   "special_formats_category": "-> Special Formats:",
   "files_not_found": "{} files no longer exist and have been removed",
-  "some_files_not_found": "Alcuni file selezionati non esistono più",
+  "some_files_not_found": "Some selected files no longer exist",
   "shortcuts_table_icon": "Icon",
   "shortcuts_table_action": "Action",
   "shortcuts_table_shortcut": "Shortcut"
