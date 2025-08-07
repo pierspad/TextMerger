@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TextMerger
+Comment=A Python GUI application for merging text files
+Exec=textmerger
+Icon=textmerger
+Terminal=false
+Categories=Office;Utility;TextEditor;
+Keywords=text;merge;files;editor;
+StartupNotify=true
