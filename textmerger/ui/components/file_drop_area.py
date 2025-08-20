@@ -3,7 +3,7 @@ from typing import List, Callable
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QFileDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-from utils.constants import (
+from ...utils.constants import (
     DARKER_BG, SECONDARY_COLOR, TEXT_COLOR, PRIMARY_COLOR, DARK_BG,
     LIGHTER_BG, LIGHT_SECONDARY_COLOR, LIGHT_TEXT_COLOR, LIGHT_PRIMARY_COLOR, LIGHT_BG
 )

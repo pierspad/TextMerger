@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QLineEdit, QTableWidgetItem, QTableWidget, QMessageBox, QApplication, QMainWindow
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeySequence
-from utils.settings import DEFAULT_SHORTCUTS
+from ...utils.settings import DEFAULT_SHORTCUTS
 import json
 import os
 

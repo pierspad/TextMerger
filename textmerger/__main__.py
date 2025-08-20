@@ -14,22 +14,22 @@ def main():
         from PyQt5.QtWidgets import QApplication
         from PyQt5.QtGui import QIcon
 
-        import ui.mainwindow
-        import utils.helpers
+        from .ui import mainwindow
+        from .utils import helpers
 
         app = QApplication(sys.argv)
         app.setApplicationName("TextMerger")
         app.setApplicationDisplayName("TextMerger")
-        app.setApplicationVersion("1.0.0")
+        app.setApplicationVersion("1.0.6")
 
         try:
-            icon_path = utils.helpers.get_asset_path("logo/logo.png")
+            icon_path = helpers.get_asset_path("logo/logo.png")
             if os.path.exists(icon_path):
                 app.setWindowIcon(QIcon(icon_path))
         except Exception as e:
             print(f"Warning: Could not set application icon: {e}")
 
-        window = ui.mainwindow.MainWindow()
+        window = mainwindow.MainWindow()
         window.show()
 
         sys.exit(app.exec_())

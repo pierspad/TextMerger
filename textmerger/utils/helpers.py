@@ -15,8 +15,8 @@ def get_asset_path(relative_path):
         assets_folder = os.path.join(base_path, 'textmerger', 'assets')
     else:
         # Running in development
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        assets_folder = os.path.join(base_path, '..', 'assets')
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        assets_folder = os.path.join(base_path, 'assets')
     
     asset_path = os.path.join(assets_folder, relative_path)
     
@@ -32,6 +32,21 @@ def get_asset_path(relative_path):
             print("Running in development mode")
     
     return asset_path
+
+def get_translations_path():
+    """Get path to translations directory, working for both dev and PyInstaller environments"""
+    
+    # Check if running in PyInstaller bundle
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # Running in PyInstaller bundle
+        base_path = sys._MEIPASS
+        translations_folder = os.path.join(base_path, 'textmerger', 'translations')
+    else:
+        # Running in development
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        translations_folder = os.path.join(base_path, 'translations')
+    
+    return translations_folder
 
 def get_colored_icon(icon_name: str, color_hex: str = "#FFFFFF", size=24) -> QIcon:
     icon_path = get_asset_path(os.path.join('icons', icon_name))

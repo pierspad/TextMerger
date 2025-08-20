@@ -2,7 +2,8 @@ import json
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from utils.settings import DEFAULT_SHORTCUTS
+from .settings import DEFAULT_SHORTCUTS
+from .helpers import get_translations_path
 
 class Localization(QObject):
     language_changed = pyqtSignal(str)
@@ -24,9 +25,7 @@ class Localization(QObject):
         if self._available_languages is None:
             self._available_languages = []
             try:
-                base_path = os.path.dirname(os.path.dirname(__file__))
-                
-                translations_dir = os.path.join(base_path, 'translations')
+                translations_dir = get_translations_path()
 
                 for file in os.listdir(translations_dir):
                     if file.startswith('strings_') and file.endswith('.json'):
@@ -39,6 +38,7 @@ class Localization(QObject):
 
                 self._available_languages.sort(key=lambda x: x[1])
             except Exception as e:
+                print(f"Error loading languages: {e}")
                 self._available_languages = [('en', 'English')]
         
         return self._available_languages
@@ -48,9 +48,8 @@ class Localization(QObject):
 
     def load_language(self, lang_code):
         try:
-            base_path = os.path.dirname(os.path.dirname(__file__))
-
-            translation_file = os.path.join(base_path, 'translations', f'strings_{lang_code}.json')
+            translations_dir = get_translations_path()
+            translation_file = os.path.join(translations_dir, f'strings_{lang_code}.json')
             
             with open(translation_file, 'r', encoding='utf-8') as f:
                 self.strings = json.load(f)
@@ -59,7 +58,17 @@ class Localization(QObject):
             self._load_shortcuts()
             self.language_changed.emit(lang_code)
         except Exception as e:
-            self.strings = {}
+            print(f"Error loading language {lang_code}: {e}")
+            # Try to load English as fallback
+            try:
+                translations_dir = get_translations_path()
+                fallback_file = os.path.join(translations_dir, 'strings_en.json')
+                with open(fallback_file, 'r', encoding='utf-8') as f:
+                    self.strings = json.load(f)
+                    self.current_language = 'en'
+            except Exception as e2:
+                print(f"Error loading fallback language: {e2}")
+                self.strings = {}
 
     def get_string(self, key):
         return self.strings.get(key, key)

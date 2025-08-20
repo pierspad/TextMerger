@@ -19,6 +19,10 @@ set "BUILD_DIR=%SCRIPT_DIR%"
 set "PYTHON_EXE=%PROJECT_ROOT%\.venv\Scripts\python.exe"
 set "PIP_EXE=%PROJECT_ROOT%\.venv\Scripts\pip.exe"
 
+:: Clean build artifacts first
+echo %BLUE%Cleaning build artifacts...%NC%
+call "%SCRIPT_DIR%clean-all.bat"
+
 :: Create build directory if it doesn't exist
 if not exist "%BUILD_DIR%" (
     mkdir "%BUILD_DIR%"

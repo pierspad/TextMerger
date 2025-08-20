@@ -48,9 +48,10 @@ Issues = "https://github.com/pierspad/TextMerger/issues"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["textmerger*"]
+exclude = ["build*", "dist*", "*.egg-info*"]
 
 [tool.setuptools.package-data]
 textmerger = [
     "assets/**/*",
-    "translations/*",
+    "translations/*.json"
 ]
