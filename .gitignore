@@ -1,0 +1,35 @@
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+tests/__pycache__/
+
+.flatpak-builder
+.flatpak-build/
+
+build-scripts/TextMerger
+build-scripts/src
+build-scripts/pkg
+
+/home/ribben/Desktop/TextMerger/build-scripts/*tar.gz

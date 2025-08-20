@@ -1,0 +1,2 @@
+[console_scripts]
+textmerger = textmerger.__main__:main
