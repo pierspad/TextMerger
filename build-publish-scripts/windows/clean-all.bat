@@ -30,4 +30,3 @@ echo Removing .pyc files...
 del /s /q *.pyc
 
 echo Clean complete!
-pause
