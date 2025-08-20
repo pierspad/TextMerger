@@ -14,18 +14,33 @@ def main():
         from PyQt5.QtWidgets import QApplication
         from PyQt5.QtGui import QIcon
 
-        from .ui import mainwindow
-        from .utils import helpers
+        # Use absolute imports instead of relative imports
+        try:
+            from textmerger.ui import mainwindow
+            from textmerger.utils import helpers
+        except ImportError:
+            # Fallback for relative imports
+            from .ui import mainwindow
+            from .utils import helpers
 
         app = QApplication(sys.argv)
         app.setApplicationName("TextMerger")
         app.setApplicationDisplayName("TextMerger")
         app.setApplicationVersion("1.0.6")
 
+        # Debug: Print if we're in a PyInstaller bundle
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            print(f"Running from PyInstaller bundle: {sys._MEIPASS}")
+        else:
+            print("Running in development mode")
+
         try:
             icon_path = helpers.get_asset_path("logo/logo.png")
             if os.path.exists(icon_path):
                 app.setWindowIcon(QIcon(icon_path))
+                print(f"Icon loaded from: {icon_path}")
+            else:
+                print(f"Icon not found at: {icon_path}")
         except Exception as e:
             print(f"Warning: Could not set application icon: {e}")
 
@@ -37,11 +52,13 @@ def main():
     except ImportError as e:
         print(f"Import error: {e}")
         print("Make sure PyQt5 is installed: pip install PyQt5")
+        input("Press Enter to exit...")
         sys.exit(1)
     except Exception as e:
         print(f"Error starting TextMerger: {e}")
         print("Traceback:")
         traceback.print_exc()
+        input("Press Enter to exit...")
         sys.exit(1)
 
 if __name__ == '__main__':

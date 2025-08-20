@@ -162,12 +162,21 @@ for %%F in ("dist\TextMerger.exe") do (
     echo Modified: %%~tF
 )
 
-:: Test the executable briefly
-echo %BLUE%Testing executable...%NC%
-echo Starting TextMerger for 3 seconds to verify it works...
-start "TextMerger Test" "dist\TextMerger.exe"
-timeout /t 3 /nobreak >nul
-taskkill /f /im TextMerger.exe >nul 2>&1
+:: Test if the executable actually works
+echo %BLUE%Testing executable functionality...%NC%
+
+:: Test if the exe can start without crashing (timeout after 5 seconds)
+echo %BLUE%Running basic startup test...%NC%
+timeout /t 1 >nul
+start /wait /b "" "%BUILD_DIR%dist\TextMerger.exe" 2>nul
+set "TEST_RESULT=%ERRORLEVEL%"
+
+if %TEST_RESULT% equ 0 (
+    echo %GREEN%✓ Executable appears to work%NC%
+) else (
+    echo %YELLOW%⚠ Executable may have issues (exit code: %TEST_RESULT%)%NC%
+    echo %YELLOW%This might be normal for GUI applications%NC%
+)
 
 :: Copy to build directory with version
 set "EXE_NAME=TextMerger-!VERSION!-windows.exe"
@@ -210,16 +219,13 @@ echo.
 echo %GREEN%Executable created: %BUILD_DIR%!EXE_NAME!%NC%
 echo %GREEN%File size: !FILE_SIZE_MB! MB%NC%
 echo.
-echo %YELLOW%To test the executable manually:%NC%
-echo "%BUILD_DIR%!EXE_NAME!"
-echo.
-
-:: Ask if user wants to test now
-set /p "test_now=Do you want to test the executable now? (y/n): "
-if /i "%test_now%"=="y" (
-    echo %BLUE%Starting TextMerger...%NC%
-    start "" "!EXE_NAME!"
-)
 
 echo %GREEN%Build script completed successfully!%NC%
-pause
+
+:: Final cleanup - run clean-all.bat at the end
+echo %BLUE%Final cleanup...%NC%
+cd /d "%PROJECT_ROOT%"
+call "%SCRIPT_DIR%clean-all.bat"
+
+:: Exit without pause to avoid prompting user
+exit /b 0

@@ -1,23 +1,42 @@
 import os
+import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton,
                              QFileDialog, QDesktopWidget, QApplication, QTreeWidgetItem,
                              QFrame, QStackedWidget, QSpacerItem, QSizePolicy, QTreeWidget, QSplitter, QHeaderView,
                              QShortcut, QMenu, QAction, QMessageBox, QTableWidget, QTableWidgetItem, QLineEdit)
 from PyQt5.QtCore import Qt, QCoreApplication, QEvent
 from PyQt5.QtGui import QIcon, QFont, QKeySequence
-from .components.snackbar import SnackBar
-from .components.droppable_text_edit import DroppableTextEdit
-from .components.loading_overlay import LoadingOverlay
-from .components.droppable_tree_widget import DroppableTreeWidget
-from .components.shortcut_editor import ShortcutEditor
-from ..utils.constants import (DARKER_BG, TEXT_COLOR, BORDER_COLOR, DARK_BG, PRIMARY_COLOR,
-                             SECONDARY_COLOR, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, WINDOW_WIDTH_PERCENTAGE,
-                             WINDOW_HEIGHT_PERCENTAGE, LIGHT_BG, LIGHTER_BG, LIGHT_TEXT_COLOR, LIGHT_BORDER_COLOR,
-                             LIGHT_PRIMARY_COLOR, LIGHT_SECONDARY_COLOR)
-from ..utils.helpers import get_asset_path, get_colored_icon
-from ..core.file_manager import load_files
-from ..utils.localization import Localization
-from ..utils.settings import Settings
+
+# Try absolute imports first, then relative imports
+try:
+    from textmerger.ui.components.snackbar import SnackBar
+    from textmerger.ui.components.droppable_text_edit import DroppableTextEdit
+    from textmerger.ui.components.loading_overlay import LoadingOverlay
+    from textmerger.ui.components.droppable_tree_widget import DroppableTreeWidget
+    from textmerger.ui.components.shortcut_editor import ShortcutEditor
+    from textmerger.utils.constants import (DARKER_BG, TEXT_COLOR, BORDER_COLOR, DARK_BG, PRIMARY_COLOR,
+                                 SECONDARY_COLOR, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, WINDOW_WIDTH_PERCENTAGE,
+                                 WINDOW_HEIGHT_PERCENTAGE, LIGHT_BG, LIGHTER_BG, LIGHT_TEXT_COLOR, LIGHT_BORDER_COLOR,
+                                 LIGHT_PRIMARY_COLOR, LIGHT_SECONDARY_COLOR)
+    from textmerger.utils.helpers import get_asset_path, get_colored_icon
+    from textmerger.core.file_manager import load_files
+    from textmerger.utils.localization import Localization
+    from textmerger.utils.settings import Settings
+except ImportError:
+    # Fallback to relative imports
+    from .components.snackbar import SnackBar
+    from .components.droppable_text_edit import DroppableTextEdit
+    from .components.loading_overlay import LoadingOverlay
+    from .components.droppable_tree_widget import DroppableTreeWidget
+    from .components.shortcut_editor import ShortcutEditor
+    from ..utils.constants import (DARKER_BG, TEXT_COLOR, BORDER_COLOR, DARK_BG, PRIMARY_COLOR,
+                                 SECONDARY_COLOR, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, WINDOW_WIDTH_PERCENTAGE,
+                                 WINDOW_HEIGHT_PERCENTAGE, LIGHT_BG, LIGHTER_BG, LIGHT_TEXT_COLOR, LIGHT_BORDER_COLOR,
+                                 LIGHT_PRIMARY_COLOR, LIGHT_SECONDARY_COLOR)
+    from ..utils.helpers import get_asset_path, get_colored_icon
+    from ..core.file_manager import load_files
+    from ..utils.localization import Localization
+    from ..utils.settings import Settings
 
 DASH_LINE = "-------------------"
 
