@@ -95,6 +95,30 @@ gh release create "$VERSION" \
     --notes-file "$RELEASE_NOTES_FILE" \
     --generate-notes
 
+# Upload additional assets if they exist
+echo -e "${YELLOW}📦 Verifica asset aggiuntivi...${NC}"
+
+# Check for Windows executable
+WINDOWS_EXE="$SCRIPT_DIR/TextMerger-$PKGVER-windows.exe"
+if [[ -f "$WINDOWS_EXE" ]]; then
+    echo -e "${BLUE}📎 Caricamento eseguibile Windows...${NC}"
+    gh release upload "$VERSION" "$WINDOWS_EXE"
+    echo -e "${GREEN}✅ Eseguibile Windows caricato${NC}"
+else
+    echo -e "${YELLOW}⚠️  Eseguibile Windows non trovato: $WINDOWS_EXE${NC}"
+    echo -e "${YELLOW}   Esegui build-windows.bat per crearlo${NC}"
+fi
+
+# Check for source tarball
+SOURCE_TAR="$SCRIPT_DIR/textmerger-$PKGVER.tar.gz"
+if [[ -f "$SOURCE_TAR" ]]; then
+    echo -e "${BLUE}📎 Caricamento tarball sorgenti...${NC}"
+    gh release upload "$VERSION" "$SOURCE_TAR"
+    echo -e "${GREEN}✅ Tarball sorgenti caricato${NC}"
+else
+    echo -e "${YELLOW}⚠️  Tarball sorgenti non trovato: $SOURCE_TAR${NC}"
+fi
+
 echo -e "${GREEN}✅ Release $VERSION creato con successo!${NC}"
 echo -e "${BLUE}🔗 Visualizza il release: https://github.com/pierspad/TextMerger/releases/tag/$VERSION${NC}"
 
